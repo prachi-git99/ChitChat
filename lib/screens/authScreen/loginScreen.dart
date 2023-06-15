@@ -1,7 +1,10 @@
 import 'dart:developer';
+import 'dart:io';
 
+import 'package:chatting_app/api/api.dart';
 import 'package:chatting_app/main.dart';
 import 'package:chatting_app/screens/homescreen/homescreen.dart';
+import 'package:chatting_app/widgets/dialogs.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -28,20 +31,40 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   _handleGoogleSignIn(){
-    _signInWithGoogle().then((user) {
-      log("\n UserInfo: ${user.user}");
-      log("\n UserAdditionalInfo: ${user.additionalUserInfo}");
-      Navigator.pushReplacement(context,MaterialPageRoute(builder:(_)=>HomeScreen()));
+    Dialogs.showProgressBar(context);
+    _signInWithGoogle().then((user) async{
+      Navigator.pop(context);
+      if(user != null){
+        log("\n UserInfo: ${user.user}");
+        log("\n UserAdditionalInfo: ${user.additionalUserInfo}");
+
+        if((await APIs.userExists())){
+          Navigator.pushReplacement(context,MaterialPageRoute(builder:(_)=>HomeScreen()));
+        }else{
+          APIs.createUser().then((value){
+            Navigator.pushReplacement(context,MaterialPageRoute(builder:(_)=>HomeScreen()));
+          });
+        }
+
+      }
     });
   }
-  Future<UserCredential> _signInWithGoogle() async {
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth?.accessToken,
-      idToken: googleAuth?.idToken,
-    );
-    return await FirebaseAuth.instance.signInWithCredential(credential);
+  Future<UserCredential?> _signInWithGoogle() async {
+    try{
+      await InternetAddress.lookup('google.com');
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth?.accessToken,
+        idToken: googleAuth?.idToken,
+      );
+      return await APIs.auth.signInWithCredential(credential);
+    }
+    catch(e){
+      log('\n _signInWithGoogle: $e');
+      Dialogs.showSnackbar(context,'Something went wrong..');
+      return null;
+    }
   }
 
   @override
@@ -64,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
 
           Positioned(
-            bottom: size.height * 0.10,
+            bottom: size.height * 0.15,
             width: size.width * 0.9,
             height:size.height * 0.07 ,
             left: size.width * 0.05,

@@ -1,5 +1,9 @@
+import 'dart:developer';
+
+import 'package:chatting_app/api/api.dart';
 import 'package:chatting_app/screens/authScreen/loginScreen.dart';
 import 'package:chatting_app/screens/homescreen/homescreen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
@@ -31,11 +35,11 @@ class MyApp extends StatelessWidget {
         appBarTheme: AppBarTheme(
               backgroundColor: Colors.white,
               centerTitle: true,
-              iconTheme: IconThemeData(color: Colors.black),
+              iconTheme: IconThemeData(color:Colors.blue.shade700),
               elevation: 1,
               titleTextStyle: TextStyle(fontSize: 16,fontWeight: FontWeight.normal,color: Colors.black,),
       )),
-      home: LoginScreen()
+      home: (APIs.auth.currentUser != null) ? HomeScreen():LoginScreen()
     );
   }
 }
