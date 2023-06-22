@@ -27,6 +27,12 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   String? _image;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    log("\n MyInfo: ${APIs.me.image}");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +52,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   //for showing progress dialog
                   Dialogs.showProgressBar(context);
 
-                  // await APIs.updateActiveStatus(false);
+                  await APIs.updateActiveStatus(false);
 
                   //sign out from app
                   await APIs.auth.signOut().then((value) async {
@@ -140,7 +146,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     // name input field
                     TextFormField(
                       initialValue: widget.user.name,
-                      onSaved: (val) => APIs.me.name = val ?? '',
+                      onSaved: (val) {
+                        APIs.me.name = val ?? '';
+                        print("ye h name : ${APIs.me.name}");
+                      } ,
                       validator: (val) => val != null && val.isNotEmpty
                           ? null
                           : 'Required Field',
@@ -182,12 +191,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           shape: const StadiumBorder(),
                           minimumSize: Size(size.width * .5, size.height * .06)),
                       onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          _formKey.currentState!.save();
-                          APIs.updateUserInfo().then((value) {
-                            Dialogs.showSnackbar(
-                                context, 'Profile Updated Successfully!');
-                          });
+                        try{
+                          if (_formKey.currentState!.validate()) {
+                            _formKey.currentState!.save();
+                            APIs.updateUserInfo().then((value) {
+                              Dialogs.showSnackbar(
+                                  context, 'Profile Updated Successfully!');
+                            });
+                          }
+                        }catch(e){
+                          print("error ye h ki :$e");
                         }
                       },
                       icon: const Icon(Icons.edit, size: 28),
@@ -245,7 +258,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             _image = image.path;
                           });
 
-                          // APIs.updateProfilePicture(File(_image!));
+                          APIs.updateProfilePicture(File(_image!));
                           // for hiding bott om sheet
                           Navigator.pop(context);
                         }
@@ -270,7 +283,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             _image = image.path;
                           });
 
-                          // APIs.updateProfilePicture(File(_image!));
+                          APIs.updateProfilePicture(File(_image!));
                           // for hiding bottom sheet
                           Navigator.pop(context);
                         }

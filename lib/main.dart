@@ -7,6 +7,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_notification_channel/flutter_notification_channel.dart';
+import 'package:flutter_notification_channel/notification_importance.dart';
+import 'package:flutter_notification_channel/notification_visibility.dart';
 
 
 late Size size;
@@ -16,6 +19,15 @@ void main() async{
   // SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp,DeviceOrientation.portraitDown]).then((value) async{
     await Firebase.initializeApp();
+    var result = await FlutterNotificationChannel.registerNotificationChannel(
+      description: 'For Showing Message notification',
+      id: 'chats',
+      importance: NotificationImportance.IMPORTANCE_HIGH,
+      name: 'Chats',
+      visibility: NotificationVisibility.VISIBILITY_PUBLIC,
+
+    );
+    log('channel result $result');
     runApp(const MyApp());
   });
 

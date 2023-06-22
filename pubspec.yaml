@@ -13,6 +13,14 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.2
+  emoji_picker_flutter: ^1.6.1
+  firebase_messaging: ^14.6.3
+  gallery_saver:
+  flutter_notification_channel:
+  http:
+
+
+  firebase_storage:
   image_picker:
   cached_network_image:
   google_sign_in: ^6.1.4
