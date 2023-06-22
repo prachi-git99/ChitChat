@@ -75,6 +75,16 @@ class APIs{
     return (await firestore.collection('users').doc(auth.currentUser!.uid).get()).exists ;
   }
 
+  static Future<bool> addChatUser(String email) async{
+    final data = await firestore.collection('users').where('email',isEqualTo: email).get() ; //exits krta h
+    if(data.docs.isNotEmpty && data.docs.first.id != user.uid){
+      firestore.collection('users').doc(user.uid).collection('my_connections').doc(data.docs.first.id).set({});
+      return true;
+    }else{
+      return false ;
+    }
+  }
+
   //for getting current user info
   static Future<void> getSelfInfo() async{
     await firestore.collection('users').doc(user.uid).get().then((user)async{
@@ -108,8 +118,17 @@ class APIs{
   }
 
   //for getting all users from db firstoeer
-  static Stream<QuerySnapshot<Map<String, dynamic>>> getAllUsers(){
-    return firestore.collection('users').where('id',isNotEqualTo: user.uid).snapshots();
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getAllUsers(List<String> userIds){
+    return firestore.collection('users').where('id',whereIn: userIds).snapshots();
+  }
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getMyUsersId(){
+    return firestore.collection('users').doc(user.uid).collection('my_connections').snapshots();
+  }
+
+  static Future<void> sendFirstMessage(ChatUser chatUser, String msg,Type type) async{
+    await firestore.collection('users').doc(chatUser.id).collection('my_connections')
+        .doc(user.uid).set({})
+        .then((value)=>sendMessage(chatUser, msg, type));
   }
 
   //update user info

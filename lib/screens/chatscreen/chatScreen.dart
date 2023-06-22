@@ -76,6 +76,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 .toList() ?? [];
 
                             if(_list.isNotEmpty){
+                              Center(child: CircularProgressIndicator(strokeWidth: 2,));
                               return ListView.builder(
                                 reverse: true,
                                 itemCount: _list.length,
@@ -85,17 +86,17 @@ class _ChatScreenState extends State<ChatScreen> {
                                     return MessageCard(message:_list[index],);
                                   }
                               );
+                            }else{
+                              return Center(child: Text('Say Hii !! 👋',style: TextStyle(fontSize: 16),),);
                             }
-                            else{
-                              return const Center(child: Text('Say Hii !! 👋',style: TextStyle(fontSize: 16),),);
-                            }
+
                         }
                       }
                   ),
                 ),
                 if(_isUploading) const Align(child: Padding(
                   padding: EdgeInsets.all(15.0),
-                  child: CircularProgressIndicator(strokeWidth: 2,),
+                  child: Center(child: CircularProgressIndicator(strokeWidth: 2,)),
                 ),alignment: Alignment.centerRight,),
 
                 _chatInput(),
@@ -259,9 +260,13 @@ class _ChatScreenState extends State<ChatScreen> {
           MaterialButton(
               onPressed: (){
                 if(_textController.text.isNotEmpty){
-                  APIs.sendMessage(widget.user,_textController.text,Type.text);
+                  if(_list.isEmpty){
+                    APIs.sendFirstMessage(widget.user,_textController.text,Type.text);
+                  }
+                  else{
+                    APIs.sendMessage(widget.user,_textController.text,Type.text);
+                  }
                   _textController.text ='';
-
                 }
               },
             padding: EdgeInsets.only(top: 10,bottom: 10,right: 5,left: 10),

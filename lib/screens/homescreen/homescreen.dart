@@ -5,6 +5,7 @@ import 'package:chatting_app/api/api.dart';
 import 'package:chatting_app/models/chat_user.dart';
 import 'package:chatting_app/screens/profileScreen/profile_screen.dart';
 import 'package:chatting_app/widgets/chatUserCard.dart';
+import 'package:chatting_app/widgets/dialogs.dart';
 import 'package:chatting_app/widgets/floatingActionButton.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -115,36 +116,51 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           body: StreamBuilder(
-            stream: APIs.getAllUsers(),
-            builder: (context, snapshot) {
-              switch(snapshot.connectionState){
+              stream: APIs.getMyUsersId(),
+              builder: (context,snapshot){
+                switch(snapshot.connectionState){
                 //data is loading
-                case ConnectionState.waiting:
-                case ConnectionState.none:
-                  return Center(child: CircularProgressIndicator());
-                case ConnectionState.active:
-                case ConnectionState.done:
-                  final data = snapshot.data?.docs;
-                  list = data?.map((e) => ChatUser.fromJson(e.data())).toList() ?? [];
-                  if(list.isNotEmpty){
-                    return ListView.builder(
-                        padding: EdgeInsets.only(top:size.height* 0.02),
-                        physics: BouncingScrollPhysics(),
-                        itemCount:_isSearching? _searchlist.length :list.length,
-                        itemBuilder: (context,index){
-                          return ChatUserCard(user:_isSearching? _searchlist[index] : list[index],);
+                  case ConnectionState.waiting:
+                  case ConnectionState.none:
+                    // return Center(child: CircularProgressIndicator());
+                  case ConnectionState.active:
+                  case ConnectionState.done:
+                  return StreamBuilder(
+                      stream: APIs.getAllUsers(snapshot.data?.docs.map((e) => e.id).toList() ?? []),
+                      builder: (context, snapshot) {
+                        switch(snapshot.connectionState){
+                        //data is loading
+                          case ConnectionState.waiting:
+                          case ConnectionState.none:
+                            return Center(child: CircularProgressIndicator());
+                          case ConnectionState.active:
+                          case ConnectionState.done:
+                            final data = snapshot.data?.docs;
+                            list = data?.map((e) => ChatUser.fromJson(e.data())).toList() ?? [];
+                            if(list.isNotEmpty){
+                              return ListView.builder(
+                                  padding: EdgeInsets.only(top:size.height* 0.02),
+                                  physics: BouncingScrollPhysics(),
+                                  itemCount:_isSearching? _searchlist.length :list.length,
+                                  itemBuilder: (context,index){
+                                    Center(child: CircularProgressIndicator());
+                                    return ChatUserCard(user:_isSearching? _searchlist[index] : list[index],);
+                                  }
+                              );
+                            }
+                            else{
+                              Center(child: CircularProgressIndicator());
+                              return Center(child: Text('No Connections Found !'),);
+                            }
                         }
-                    );
-                  }
-                  else{
-                    return Center(child: Text('No Connections Found !'),);
-                  }
+
+
+
+                      }
+                  );
+                }
               }
-
-
-
-            }
-          ),
+          )
         ),
       ),
     );
@@ -180,8 +196,19 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Text("Cancel",style: TextStyle(color: Colors.blue,fontSize:16)),
         ),
         MaterialButton(
-          onPressed: (){
+          onPressed: ()async{
             Navigator.pop(context);
+            if(email.isNotEmpty){
+              await APIs.addChatUser(email).then((value){
+                if(!value){
+                  Dialogs.showSnackbar(context,'User doew not exists');
+                }
+              });
+            }
+            else{
+
+            }
+
 
           },
           child: Text("Add",style: TextStyle(color: Colors.blue,fontSize:16)),
