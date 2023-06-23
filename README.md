@@ -1,16 +1,6 @@
 # chatting_app
 
-A new Flutter project.
+Chitchat is a chatting app using flutter ,firebase where user can login in via google sign in also We have local storage of our data using JSON. We have many functionalities like last seen , user available status, profile editing , emoji picker , User can send images and videos also 
 
-## Getting Started
+https://github.com/prachi-git99/ChitChat/assets/83897459/ff56dfad-3cd2-4bbb-9d5e-3f15153df7a0
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
